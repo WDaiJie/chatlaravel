@@ -1,0 +1,1 @@
+hello from admin view<?php /**PATH C:\xampp\htdocs\chat_laravel\resources\views/admin/index.blade.php ENDPATH**/ ?>

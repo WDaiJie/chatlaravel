@@ -1,0 +1,69 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "My Swagger",
+        "version": "0.1"
+    },
+    "paths": {
+        "/chat_laravel/profile/{slug}": {
+            "get": {
+                "tags": [
+                    "uploadPhoto"
+                ],
+                "summary": "照片",
+                "description": "使用者照片",
+                "operationId": "TimeShow",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "用户 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功返回"
+                    },
+                    "400": {
+                        "description": "發生错误"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/show": {
+            "post": {
+                "tags": [
+                    "show API"
+                ],
+                "summary": "show ",
+                "description": "show 測試   ",
+                "operationId": "TimeShow",
+                "parameters": [
+                    {
+                        "name": "access_token",
+                        "in": "query",
+                        "description": "用戶授權",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功返回"
+                    },
+                    "400": {
+                        "description": "發生錯誤"
+                    }
+                },
+                "deprecated": false
+            }
+        }
+    }
+}
