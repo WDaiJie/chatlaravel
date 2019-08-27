@@ -49441,7 +49441,7 @@ var app = new Vue({
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! c:\xampp\htdocs\chat_laravel\resources\js\profile.js */"./resources/js/profile.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\chat_laravel\resources\js\profile.js */"./resources/js/profile.js");
 
 
 /***/ })

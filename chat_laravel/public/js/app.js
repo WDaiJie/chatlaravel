@@ -49221,6 +49221,9 @@ var app = new Vue({
     msg: 'New Post:',
     content: '',
     postsdata: [],
+    commentSeen: 0,
+    countseen: 0,
+    likes: [],
     chatUrl: 'http://localhost:8888/chat_laravel'
   },
   ready: function ready() {
@@ -49233,6 +49236,18 @@ var app = new Vue({
       console.log(response); // show if success
 
       _this.postsdata = response.data; //we are putting data into our posts array      
+
+      Vue.filter('nowTime', function (value) {
+        return moment(value).fromNow();
+      });
+    })["catch"](function (error) {
+      console.log(error); // run if we have error
+    }); //fetching likes
+
+    axios.get('http://localhost/chat_laravel/likes').then(function (response) {
+      console.log(response); // show if success
+
+      _this.likes = response.data; //we are putting data into our posts array      
     })["catch"](function (error) {
       console.log(error); // run if we have error
     });
@@ -49250,6 +49265,37 @@ var app = new Vue({
       })["catch"](function (error) {
         console.log(error); // run if we have error
       });
+    },
+    deletePost: function deletePost(id) {
+      var _this2 = this;
+
+      axios.get('http://localhost/chat_laravel/deletePost/' + id).then(function (response) {
+        console.log(response); // show if success
+
+        _this2.postsdata = response.data; //we are putting data into our posts array      
+      })["catch"](function (error) {
+        console.log(error); // run if we have error
+      });
+    },
+    likePost: function likePost(id) {
+      var _this3 = this;
+
+      axios.get('http://localhost/chat_laravel/likePost/' + id).then(function (response) {
+        console.log(response); // show if success
+
+        _this3.postsdata = response.data; //we are putting data into our posts array      
+      })["catch"](function (error) {
+        console.log(error); // run if we have error
+      });
+    },
+    commentcl: function commentcl(id) {
+      if (id == app.commentSeen) {
+        app.countseen += 1;
+      } else {
+        app.countseen = 1;
+      }
+
+      app.commentSeen = id;
     }
   }
 });
@@ -49390,7 +49436,7 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! c:\xampp\htdocs\chat_laravel\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\chat_laravel\resources\js\app.js */"./resources/js/app.js");
 
 
 /***/ })
