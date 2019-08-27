@@ -33,24 +33,39 @@ const app = new Vue({
         msg:'New Post:',
         content:'',
         postsdata:[],
+        commentSeen:0,
+        countseen:0,
+        likes:[],
         chatUrl: 'http://localhost:8888/chat_laravel',
     },
     ready:function () {
       this.created();
     },
     created(){
-      axios.get('http://localhost/chat_laravel/posts')
-      .then(response=>{
-        console.log(response); // show if success
-        this.postsdata=response.data;   //we are putting data into our posts array      
-      })
-      .catch(function (error) {
-        console.log(error); // run if we have error
-      });
+        axios.get('http://localhost/chat_laravel/posts')
+        .then(response=>{
+          console.log(response); // show if success
+          this.postsdata=response.data;   //we are putting data into our posts array      
+          Vue.filter('nowTime', function(value){
+            return moment(value).fromNow();
+          });
+        })
+        .catch(function (error) {
+          console.log(error); // run if we have error
+        });
+        //fetching likes
+        axios.get('http://localhost/chat_laravel/likes')
+        .then(response=>{
+          console.log(response); // show if success
+          this.likes=response.data;   //we are putting data into our posts array      
+        })
+        .catch(function (error) {
+          console.log(error); // run if we have error
+        });
     },
     methods:{
         addPost(){
-          axios.post('http://localhost/chat_laravel/addnewPost', {
+            axios.post('http://localhost/chat_laravel/addnewPost', {
                  content: this.content
                })
                .then(function (response){
@@ -61,7 +76,35 @@ const app = new Vue({
                })
                .catch(function (error) {
                  console.log(error); // run if we have error
-               });
+            });
+        },
+        deletePost(id){
+            axios.get('http://localhost/chat_laravel/deletePost/'+id)
+            .then(response=>{
+              console.log(response); // show if success
+              this.postsdata=response.data;   //we are putting data into our posts array      
+            })
+            .catch(function (error) {
+              console.log(error); // run if we have error
+            });
+        },
+        likePost(id){
+            axios.get('http://localhost/chat_laravel/likePost/'+id)
+            .then(response=>{
+              console.log(response); // show if success
+              this.postsdata=response.data;   //we are putting data into our posts array      
+            })
+            .catch(function (error) {
+              console.log(error); // run if we have error
+            });
+        },
+        commentcl(id){
+          if(id==app.commentSeen){
+            app.countseen+=1;
+          }else{
+            app.countseen=1;
+          }
+          app.commentSeen=id;
         }
     }
    
