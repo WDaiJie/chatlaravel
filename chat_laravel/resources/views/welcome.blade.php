@@ -13,10 +13,9 @@
         <link rel="stylesheet" href="{{ asset('public/css/bootstrap.min.css') }}">
         <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
         <link href="{{ asset('public/css/app.css') }}" rel="stylesheet">
-        <!-- Styles -->
         <style>
             html, body {
-                background-color: #d1a7ff40;
+                background-color:   #e4e5fb;
                 color: #636b6f;
                 font-family: 'Nunito', sans-serif;
                 font-weight: 200;
@@ -24,7 +23,11 @@
                 margin: 0;
             }
             .top_bar{
-              position:relative; width:99%; top:0; padding:5px; margin:0 5
+              position:relative; 
+              width:99%; 
+              top:0; 
+              padding:5px; 
+              margin:0 5
             }
 
             .full-height {
@@ -59,7 +62,7 @@
                 color: #636b6f;
                 padding: 0 25px;
                 font-size: 13px;
-                font-weight: 600;
+                font-weight: 500;
                 letter-spacing: .1rem;
                 text-decoration: none;
                 text-transform: uppercase;
@@ -76,7 +79,7 @@
             }
             .left-sidebar, .right-sidebar{
               background-color:#fff;
-              height:550px;
+              height:500px;
 
             }
             .left-sidebar li { 
@@ -95,6 +98,18 @@
                 border:none; 
                 height:120px;
             }   
+            .sidebarli{
+            padding-left:30px; 
+            padding-right:5px;
+            padding-top:8px;
+            padding-bottom:8px
+            text-align:justify;
+            display: block;
+            width:100%;
+        }
+        .sidebarli:hover{
+            background-color: #96a5fb3b;
+        }  
              
         </style>
             <script src="https://use.fontawesome.com/595a5020bd.js"></script>
@@ -115,11 +130,9 @@
                     @endauth
                 </div>
             @endif
-            <div class="col-md-12"  id="app">     
-                <div class="col-md-2 left-sidebar  hidden-sm hidden-xs">
-                    <h3 align="center"> Left Sidebar</h3><hr>
-                </div>
-                <div class="col-md-7 col-sm-12 col-xs-12 center-con">
+            <div class="col-md-12"  id="app" style=" height:500px;">     
+                @include('profile.sidebar')
+                <div class="col-md-6 col-sm-12 col-xs-12 center-con">
                     @if(Auth::check())
                     <div class="posts_div">
                         <div class="heard_har">@{{msg}}                      
@@ -143,19 +156,31 @@
                     <div class="posts_div">
                         <div class="heard_har">Posts</div>  
                             <div v-for="post in postsdata"> 
-                                <div class="col-md-12 col-sm-12 col-xs-12"style="background-color:#fff; border:1px solid #e0e0e0">
-                                    <div class="col-md-2 col-sm-2 col-xs-2 pull-left"> 
+                                <div class="col-md-12 "style="background-color:#fff; border:1px solid #e0e0e0;padding-right:0px;margin-right:0px">
+                                    <div class="col-md-2"> 
                                         <img :src="'{{Config::get('app.url')}}/public/img/' + post.image" style="width:70px; margin:5px;border-radius:100%">
                                     </div>
-                                    <div class="col-md-3 col-sm-7 col-xs-7 pull-left">
+                                    <div class="col-md-3">
                                         <h3>@{{post.name}}</h3>
                                         <i class="fa fa-globe"></i>@{{post.city}} in @{{post.country}}
                                         <small><b>Gender:</b>@{{post.gender}}</small><br>
                                         <small>@{{post.created_at}}</small>
                                      </div>
-                                     <div class="col-md-7  col-sm-11 col-xs-11 pull-right" style="padding-top:20px">
-                                        <p style="color:#333">@{{post.content}}</p>
+                                     <div class="col-md-6" style="padding-top:30px;padding-left:15px;margin-right:0px;">                     
+                                        <p style="color:#333">@{{post.content}}</p>                                  
                                      </div>
+                                     <div class="col-md-1"style="padding-left:30px;margin-left:1px;padding-right:0px;margin-right:0px;">
+                                            @if(Auth::check())
+                                            <a href="#" data-toggle="dropdown" aria-haspopup="true" style="padding-right:0px;"> <img src="{{asset('public/img/settings.png')}}" width="25px" height="25px" >
+                                                <div class="dropdown-menu">                                
+                                                        <a class="dropdown-item">some action here</a>                                        
+                                                        <a class="dropdown-item">some more action</a>   
+                                                        <div class="dropdown-divider"></div>                                     
+                                                        <a class="dropdown-item" v-if="post.user_id=='{{Auth::user()->id}}'" @click="deletePost(post.id)" style="height:30px;margin-top:-2px;padding-top:0px"><i class="fa fa-trash" style="margin:10px;"></i>delete</a>                                        
+                                                </div>
+                                             </a>  
+                                             @endif 
+                                        </div>
                                 </div>                                                                 
                             </div>     
                     </div>       
@@ -166,8 +191,7 @@
             </div>
         </div>
     </body>
-
-<script>
+<!-- <script>
     $(document).ready(function(){
         $('#postBtn').hide();
         $("#postText").hover(function() {
@@ -175,5 +199,5 @@
             $('#postText').animate({ 'zoom': currentZoom += .5} ,'slow');
         });
     });
-</script>
+</script> -->
 </html>
