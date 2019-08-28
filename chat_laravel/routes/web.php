@@ -41,6 +41,17 @@ Route::group(['middleware', 'auth'],function () {
         return view ('newMessage');
     });
     Route::post('/addnewPost','PostsController@addnewPost');
+    Route::get('/posts','PostsController@show');
+    //delete post
+    Route::get('/deletePost/{id}','PostsController@deletePost');
+    //like post
+    Route::get('/likePost/{id}','PostsController@likePost');
+    //likes show
+    Route::get('/likes','PostsController@likesShow');
+    //add comment
+    Route::post('/addComment','PostsController@addComment');
+    //save Image
+    Route::post('/saveImg','PostsController@saveImage');
     // forgot password
     Route::get('/forgotPassword',function(){
         return view ('profile.forgotPassword');
@@ -52,13 +63,17 @@ Route::group(['middleware', 'auth'],function () {
     Route::post('/setToken','ProfileController@setToken');
     //set new password
     Route::post('/setnewPassword','ProfileController@setnewPassword');
-    Route::get('/posts','PostsController@show');
+    // jobs for users
+    Route::get('/jobs','ProfileController@jobs');
+    Route::get('/job/{id}','ProfileController@jobkey');
+   
+    
 });
 Route::group(['prefix'=>'company','middleware'=>['auth','company']],function () {   
     Route::get('/','companyController@index');
     Route::get('/addJobFrom',function () {
         return view ('company.addJob');
-    });
+    }); 
     Route::get('/jobs','companyController@viewJobs');
     Route::post('addJobSubmit','companyController@addJobSubmit');
 });
@@ -66,5 +81,4 @@ Route::group(['prefix'=>'admin','middleware'=>['auth','admin']],function () {
     Route::get('/','adminController@index');    
 });
 Route::get('/logout','Auth\LoginController@logout');
-
 Auth::routes();
