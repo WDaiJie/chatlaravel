@@ -8,7 +8,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <script src="{{ asset('public/js/app.js') }}" defer></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src="{{ asset('public/js/moment.js') }}"></script>
+        <script src="{{asset('public/js/moment.js') }}"></script>
         <script src="https://use.fontawesome.com/releases/v5.10.2/js/all.js" data-auto-replace-svg="nest"></script>
         <link rel="dns-prefetch" href="//fonts.gstatic.com">
         <link rel="stylesheet" href="{{ asset('public/js/bootstrap.min.js') }}">
@@ -80,7 +80,7 @@
                     padding: 8px 6px;
             }
             .left-sidebar, .right-sidebar{
-              background-color:#fff;
+              background-color:#96a5fb3b;
               height:500px;
 
             }
@@ -127,7 +127,7 @@
                 margin:3px
             }
             .center-con{
-                max-height:500px;
+                max-height:580px;
                 left:calc(-1%);
                 overflow-y: scroll;
             }    
@@ -159,11 +159,19 @@
                 padding:10px; 
                 margin-bottom:10px;
             }
-
+            @media (min-width: 268px) and (max-width: 768px) {
+                  .center-con{
+                    max-height:600px;
+                    position: relative;
+                    left:0px;
+                    overflow-y: scroll;
+                  }
+            }
         </style>
          
     </head>
     <body>
+  
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">
@@ -179,7 +187,8 @@
                     @endauth
                 </div>
             @endif
-            <div class="col-md-12"  id="app" style="height:500px; width:300px">     
+            <div class="col-md-12"  id="app">   
+            @if(Auth::check())    
                 @include('profile.sidebar')
                 <div class="col-md-6 col-sm-12 col-xs-12 center-con">
                     @if(Auth::check())
@@ -194,16 +203,27 @@
                                 </div>   
                                 <div class="col-md-10 pull-right"style="padding-right:10px;padding-left:0px;">
                                     <form method="post" enctyple="multipart/form-data" v-on:submit.prevent="addPost" style="padding-top:10px">
-                                        <textarea v-model="content" id="postText" class="form-control" placeholder="what's on your mind ?"></textarea>
-                                        <button type="submit" class="btn btn-sm btn-info pull-right" style="margin:10px" id="postBtn">Post</button>
+                                        <textarea v-model="content" id="postText" class="form-control" placeholder="what's on your mind ?"></textarea>             
+                                        <button type="submit" class="btn btn-sm btn-info pull-right" style="margin:10px;" id="Postbtn">Post</button>
+                                         
                                     </form>
+                                    <div class="col-md-12">
+                                        <div v-if="!image">
+                                            <input type="file" @change="onFileChange">
+                                        </div>
+                                        <div v-else>                                      
+                                            <img :src="image" style="width:100px; margin:10px;"/><br>
+                                            <button @click="uploadImg" class="btn btn-sm btn-info">Upload</button>
+                                            <button @click="removImg" class="btn btn-sm btn-danger">Remove</button>
+                                        </div>
+                                    </div>
                                 </div>                
                             </div>
                         </div>                       
                     </div> 
                     @endif 
                     <div class="posts_div">                   
-                        <div v-for="post in postsdata"> 
+                        <div v-for="post,key in postsdata"> 
                             <div class="col-md-12 all_post">
                                 <div class="col-md-1 pull-left" style="padding-left:8px;"> 
                                     <img :src="'{{Config::get('app.url')}}/public/img/' + post.user.image" style="width:50px; border-radius:100%">
@@ -213,7 +233,7 @@
                                         <div class="col-md-11">
                                             <p> 
                                                 <a :href="'{{url('profile')}}/' +post.user.slug" class="user_name"> @{{post.user.name}}</a> <br>
-                                                <span style="color:#AAADB3">  @{{ post.created_at | nowTime}}
+                                                <span style="color:#AAADB3">  @{{ post.created_at | Newtime}}
                                                 <i class="fa fa-globe"></i></span>
                                             </p>
                                         </div>
@@ -229,8 +249,8 @@
                                                 </a>  
                                             @endif 
                                         </div>
-                                    </div>        
-                                </div>        
+                                    </div> 
+                                </div>                                                 
                                 <p class="col-md-12" style="color:#000; margin-top:15px; font-family:inherit"> @{{post.content}}</p>  
                                 <div style="padding:10px; border-top:1px solid #ddd" class="col-md-12">
                                         @if(Auth::check())                                                                  
@@ -244,7 +264,7 @@
                                             @endif                                           
                                         </div>
                                         <div class="col-md-4" id="commentsDiv">
-                                            <p class="commentHand" @click="commentcl(post.id)">Comments <b>(@{{post.comments.length}})</b></p>
+                                            <p class="commentHand" @click="commentcl(post,key)">Comments <b>(@{{post.comments.length}})</b></p>
                                         </div>                              
                                 </div>
                             </div>       
@@ -253,9 +273,9 @@
                                         <li>@{{commentkey.comment}}</li>
                                 </ul>
                                 <div class="comment_form">
-                                    <textarea class="form-control" style="width:590px;height:80px"></textarea>                       
+                                    <textarea class="form-control" v-model="commentData[key]"style="width:590px;height:80px"></textarea>                       
                                     <div style="text-align:right">
-                                        <button class="btn btn-primary"style="margin:5px">Sent</button>  
+                                        <button class="btn btn-primary"@click="addComment(post,key)" style="margin:5px">Sent</button>  
                                     </div>                       
                                 </div>
                             </div>                                                                            
@@ -264,16 +284,38 @@
                 </div>       
                 <div class="col-md-3 right-sidebar  hidden-sm hidden-xs">
                     <h3 align="center"> Right Sidebar</h3><hr>
-                </div>              
+                </div> 
+            @else
+            <div class="content">
+                <div class="title m-b-md">
+                        Chat Laravel
+                </div>
+                <div class="links">
+                    <a href="https://laravel.com/docs">Docs</a>
+                    <a href="https://laracasts.com">Laracasts</a>
+                    <a href="https://laravel-news.com">News</a>
+                    <a href="https://blog.laravel.com">Blog</a>
+                    <a href="https://nova.laravel.com">Nova</a>
+                    <a href="https://forge.laravel.com">Forge</a>
+                    <a href="https://github.com/laravel/laravel">GitHub</a>
+                </div>
+            </div>
+             
+            @endif             
             </div>
         </div>
     </body>
 <script>
-    $(document).ready(function(){
-        $('#postBtn').hide();
-        $("#postText").hover(function() {
-            $('#postBtn').show();
-        });
-    });
+$(document).ready(function(){
+$('#postBtnDiv').hide();
+  $("#postText").hover(function() {
+    $('#Postbtn').show();
+ });
+ $("#postText"). mouseleave(function() {
+    $('#Postbtn').hide();
+ });
+
+});
+   
 </script>
 </html>
