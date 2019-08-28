@@ -36,6 +36,9 @@ const app = new Vue({
         commentSeen:0,
         countseen:0,
         likes:[],
+        post:[],
+        commentData:{},
+        image:'',
         chatUrl: 'http://localhost:8888/chat_laravel',
     },
     ready:function () {
@@ -46,7 +49,7 @@ const app = new Vue({
         .then(response=>{
           console.log(response); // show if success
           this.postsdata=response.data;   //we are putting data into our posts array      
-          Vue.filter('nowTime', function(value){
+          Vue.filter('Newtime', function(value){
             return moment(value).fromNow();
           });
         })
@@ -98,14 +101,60 @@ const app = new Vue({
               console.log(error); // run if we have error
             });
         },
-        commentcl(id){
-          if(id==app.commentSeen){
+        commentcl(post,key){
+          if(post.id==app.commentSeen){
             app.countseen+=1;
           }else{
             app.countseen=1;
-          }
-          app.commentSeen=id;
-        }
+          }    
+          app.commentSeen=post.id;
+        },
+        addComment(post,key){
+          axios.post('http://localhost/chat_laravel/addComment', {
+            comment: this.commentData[key],
+            id:post.id,
+          })
+          .then(function (response){
+              console.log('saved successfully'); // show if success
+              if(response.status===200){
+                app.postsdata=response.data;      
+            }
+          })
+          .catch(function (error) {
+              console.log(error); // run if we have error
+          });
+        },
+        onFileChange(e){
+        
+          var files=e.target.files || e.dataTransfer.files;  //Judge the event of dragging or uploading
+          this.createImg(files[0]);   //file the image/file value to our function
+
+        },
+        createImg(file){
+          //we will preview our image before upload
+          var image = new Image;
+          var reader = new FileReader();  //Create a fileReader to listen for the reader event
+          reader.onload = (e) =>{ 
+            this.image=e.target.result;
+            // console.log(e.target.result); // The file's text will be printed here
+          };
+          reader.readAsDataURL(file); //read the contents of the specified Blob or File. 
+        },
+        removImg(){
+          this.image="";
+        },
+        uploadImg(){
+          axios.post('http://localhost/chat_laravel/saveImg', {
+                 image: this.image
+               })
+               .then(function (response){
+                 console.log(response.data); // show if success
+                 
+               })
+               .catch(function (error) {
+                 console.log(error); // run if we have error
+            });
+        } 
     }
    
 });
