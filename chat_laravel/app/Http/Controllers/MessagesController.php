@@ -36,7 +36,7 @@ class MessagesController extends Controller
 
         // }else{
         //     echo "no msg";
-        // }
+        // } 
         $update_status = DB::table('conversation')->where('id',$cov_id)
         ->update([
             'status' => 1 // now read by user
@@ -91,10 +91,8 @@ class MessagesController extends Controller
     public function sendNewMessage(Request $request){
         $msg=$request->msg;
         $friend_id=$request->friend_id;
-        $loggedid=Auth::user()->id;
-            // check if conversation already  started or not
-         
-        $checkCon1=DB::table('conversation')
+        $loggedid=Auth::user()->id;     
+        $checkCon1=DB::table('conversation')    // check if conversation already  started or not
         ->where('user_one',$loggedid)        //if loggedin user started conversation
         ->where('user_two',$friend_id)
         ->get();
@@ -103,14 +101,11 @@ class MessagesController extends Controller
         ->where('user_one',$friend_id)     //if loggedin received messagefirst
         ->where('user_two',$loggedid)
         ->get();
-
         $allCons=array_merge($checkCon1->toArray(),$checkCon2->toArray());
      
-        if(count($allCons)!=0){
-            //old conversation
+        if(count($allCons)!=0){     //old conversation
             $conId_old=$allCons[0]->id;
-           // insert data into messages iterable
-            $MsgSent=DB::table('messages')
+            $MsgSent=DB::table('messages')  // insert data into messages iterable
             ->insert([
                 'user_from'=>$loggedid,
                 'user_to'=>$friend_id,
@@ -120,9 +115,7 @@ class MessagesController extends Controller
                 'created_at'=>date("Y-m-d H:i:s"),
                 'updated_at'=>date("Y-m-d H:i:s")
             ]);
-
-        }else{
-            //new conversation
+        }else{//new conversation
             $conId_new=DB::table('conversation')->insertGetID([
                 'user_one'=>$loggedid,'user_two'=>$friend_id,'created_at'=>date("Y-m-d H:i:s"),'updated_at'=>date("Y-m-d H:i:s")
             ]);
@@ -137,6 +130,17 @@ class MessagesController extends Controller
                 'updated_at'=>date("Y-m-d H:i:s")
             ]);
         }
-
+    }
+    public static function  messagesCount(){
+        $loggedid=Auth::user()->id;
+        $msgCount1=DB::table('conversation')
+        ->where('status',0)
+        ->where('user_one',$loggedid)
+        ->count();
+        $msgCount2=DB::table('conversation')
+        ->where('status',0)
+        ->where('user_two',$loggedid)
+        ->count();
+        return $msgCount1+$msgCount2;
     }
 }

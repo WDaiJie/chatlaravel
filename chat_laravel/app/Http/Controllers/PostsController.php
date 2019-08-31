@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Posts;
 use App\likes;
+use App\comments;
 use App\Http\Requests;
 date_default_timezone_set('Asia/Taipei');
 class PostsController extends Controller
@@ -16,7 +17,7 @@ class PostsController extends Controller
         // ->leftJoin('profile','profile.user_id','posts.user_id')
         // ->leftJoin('users','users.id','posts.user_id')
         // ->get();
-        $posts_data=posts::with('user','likes','comments')->orderBy('created_at','desc')->get();
+        $posts_data=posts::with('user','likes','comments.user')->orderBy('created_at','desc')->get();
         return view('welcome',compact('posts_data'));
     }
     public function addnewPost(Request $request){
@@ -31,7 +32,7 @@ class PostsController extends Controller
             // ->orderBy('posts.created_at','desc')->take(4)
             // ->select('posts.*','users.name','users.gender','users.slug','users.image','profile.city','profile.country','profile.about')
             // ->get();
-            $posts_data_new=posts::with('user','likes','comments')
+            $posts_data_new=posts::with('user','likes','comments.user')
             ->orderBy('posts.created_at','desc')
             ->get();
             return $posts_data_new;   //return all posts same as before
@@ -45,15 +46,18 @@ class PostsController extends Controller
         // ->select('posts.*','users.name','users.gender','users.slug','users.image','profile.city','profile.country','profile.about')
         // ->get();
         // return  $posts_data;
-        $posts_data= posts::with('user','likes','comments')
+        $fetch=comments::with('user');
+        $posts_data= posts::with('user','likes','comments.user' )
         ->orderBy('posts.created_at','desc')
         ->get();
+      
+        // dd($posts_data);
         return  $posts_data;
     }
     public function deletePost($id){
         $deletePost = DB::table('posts')->where('id',$id)->delete();
         if($deletePost){
-            $posts_data=posts::with('user','likes','comments')
+            $posts_data=posts::with('user','likes','comments.user')
             ->orderBy('posts.created_at','desc')
             ->get();
             return  $posts_data;
@@ -67,9 +71,8 @@ class PostsController extends Controller
             'created_at'=>\Carbon\Carbon::now()->toDateTimeString(),
             'updated_at'=>\Carbon\Carbon::now()->toDateTimeString()
         ]);
-        // if like successfully then display like
-        if($likePost){
-           return posts::with('user','likes','comments')->orderBy('posts.created_at','desc')->get();
+        if($likePost){        // if like successfully then display like
+           return posts::with('user','likes','comments.user')->orderBy('posts.created_at','desc')->get();
         }
     }
     public function likesShow(){
@@ -89,29 +92,109 @@ class PostsController extends Controller
             'updated_at'=>date("Y-m-d H:i:s")
             ]);
         if($commentInsert){
-            return posts::with('user','likes','comments')->orderBy('created_at','desc')->get(); 
+            return posts::with('user','likes','comments.user')->orderBy('created_at','desc')->get(); 
         }
     }
     public function saveImage(Request $request){
         $image=$request->get('image');
         $explodedImg=explode(",",$image);  // ',' cutting
-        //extention
-        if(str_contains($explodedImg[0],'gif')){  //if explodedImg has gif?
+        if(str_contains($explodedImg[0],'gif')){      //extention   //if explodedImg has gif?
             $ext='gif';
         }else if(str_contains($explodedImg[0],'png')){
             $ext='png';
         }else{
             $ext='jpg';
         }
-        //decode    Img64
-        $decode=base64_decode($explodedImg[1]);
+        $decode=base64_decode($explodedImg[1]);    //decode    Img64
         $filename=str_random(10).".".$ext;
-        //path of your local folder
-        $Imgpath=public_path()."/img/".$filename;  //public path to the directory
-        //upload image to your path
-        if(file_put_contents($Imgpath,$decode)){ // writes a string to a file.
-            echo "file scusses ".$filename;
+        $Imgpath=public_path()."/img/".$filename;    //path of your local folder  //public path to the directory
+            // echo "file scusses ".$filename;         //upload image to your path
+        $loggedid=Auth::user()->id;
+        $content =$request->content;
 
-        }  
+        if(file_put_contents($Imgpath,$decode)){     // writes a string to a file.
+            $addPostImage=DB::table('posts')
+            ->insert(['content'=>$content,'user_id'=>$loggedid,'image'=>$filename,'status'=>0,'created_at'=>date("Y-m-d H:i:s"),'updated_at'=>date("Y-m-d H:i:s")]);
+            if($addPostImage){            
+                $posts_data_new=posts::with('user','likes','comments.user')
+                ->orderBy('posts.created_at','desc')
+                ->get();
+                return $posts_data_new;   
+            }  
+        }    
+    }
+    public function Edit_Post($id){
+        $loggedid=Auth::user()->id;
+        $Edit_PostShow=posts::where('id',$id)->where('user_id',$loggedid)->get();
+        return  $Edit_PostShow;
+    }
+    public function updatePostImgTxt(Request $request){
+        $loggedid=Auth::user()->id;
+        $postid=$request->id;
+        $image=$request->get('Img');
+        $updatedContent=$request->updatedContent;
+        $Postimage=posts::where('id',$postid)->where('user_id',$loggedid)->select('image')->get();
+        if($image==null){    //without image
+            $updatePosts=DB::table('posts')
+            ->where('id',$postid)
+            ->where('user_id',$loggedid)
+            ->update([
+                'content'=>$updatedContent,
+                'image'=>$image,
+                'created_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date("Y-m-d H:i:s")
+                ]);
+            if($updatePosts){            
+                $posts_data_new=posts::with('user','likes','comments.user')
+                ->orderBy('posts.created_at','desc')
+                ->get();
+                return $posts_data_new;   
+            }  
+        }elseif($image==($Postimage[0]->image)){  //old image
+            $updatePosts=DB::table('posts')
+            ->where('id',$postid)
+            ->where('user_id',$loggedid)
+            ->update([
+                'content'=>$updatedContent,          
+                'created_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date("Y-m-d H:i:s")
+                ]);
+            if($updatePosts){            
+                $posts_data_new=posts::with('user','likes','comments.user')
+                ->orderBy('posts.created_at','desc')
+                ->get();
+                return $posts_data_new;   
+            }
+        }else{  //new image
+            $explodedImg=explode(",",$image);  // ',' cutting
+            if(str_contains($explodedImg[0],'gif')){      //extention   //if explodedImg has gif?
+                $ext='gif';
+            }else if(str_contains($explodedImg[0],'png')){
+                $ext='png';
+            }else{
+                $ext='jpg';
+            }
+            $decode=base64_decode($explodedImg[1]);    //decode    Img64
+            $filename=str_random(10).".".$ext;
+            $Imgpath=public_path()."/img/".$filename;    //path of your local folder  //public path to the directory        //upload image to your pat
+            if(file_put_contents($Imgpath,$decode)){     // writes a string to a file.          
+                $updatePosts=DB::table('posts')
+                ->where('id',$postid)
+                ->where('user_id',$loggedid)
+                ->update([
+                    'content'=>$updatedContent,
+                    'image'=>$filename,
+                    'created_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date("Y-m-d H:i:s")
+                    ]);
+                if($updatePosts){            
+                    $posts_data_new=posts::with('user','likes','comments.user')
+                    ->orderBy('posts.created_at','desc')
+                    ->get();
+                    return $posts_data_new;   
+                }  
+            }    
+        }
+       
     }
 }

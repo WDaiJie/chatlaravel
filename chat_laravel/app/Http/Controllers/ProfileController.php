@@ -184,7 +184,7 @@ class ProfileController extends Controller
     }
     public function setToken(Request $request){
         $email=$request->email_address;
-        $checkEmail=DB::table('users')->where('email',$email)->get();//check any user have this email email_address
+        $checkEmail=DB::table('users')->where('email',$email)->get();   //check any user have this email email_address
         if(count($checkEmail)==0){
             echo "wrong email address.";
         }else{
