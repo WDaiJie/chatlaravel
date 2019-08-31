@@ -40,12 +40,13 @@ const app = new Vue({
         friend_id:'',
         seen:false,
         newMsgFrom: '',
+        chatUrl: 'http://localhost/chat_laravel',
     },
-    ready:function () {
+    ready:function () { 
       this.created();
     },
     created(){  
-      axios.get('http://localhost/chat_laravel/getMessages')
+      axios.get(this.chatUrl+'/getMessages')
       .then(response=>{
         app.privsteMesgs=response.data;   //we are putting data into our posts array      
         console.log(app.privsteMesgs); // show if success
@@ -53,7 +54,7 @@ const app = new Vue({
       .catch(function (error) {
         console.log(error); // run if we have error
       });
-      axios.get('http://localhost/chat_laravel/newMessagefriendli')
+      axios.get(this.chatUrl+'/newMessagefriendli')
       .then(response=>{
         app.newMessage_fr=response.data;   //we are putting data into our posts array      
         console.log(app.newMessage_fr); // show if success
@@ -65,7 +66,7 @@ const app = new Vue({
     },
     methods:{
       messagescli:function (id){
-        axios.get('http://localhost/chat_laravel/getMessages/'+id)
+        axios.get(this.chatUrl+'/getMessages/'+id)
              .then(response=>{
               app.singleMsgs=response.data;   //we are putting data into our posts array   
               app.converID=response.data[0].conversation_id;
@@ -82,14 +83,16 @@ const app = new Vue({
         }
       },
       sendMsg(){
-        if(this.msgFrom){
-            axios.post('http://localhost/chat_laravel/sendMessages',{
+        msgSentT=this;
+        if(this.msgFrom){     
+            axios.post(this.chatUrl+'/sendMessages',{
               converID:this.converID,
               msg:this.msgFrom
-            })
+            })         
             .then(function (response) {
               console.log(response.data);
-              if(response.status===200){           //http==200 success//　0:Not reading 1:reading 2:is Download 3:Information exchange 4:Processing completed 
+              msgSentT.msgFrom="";
+              if(response.status===200){  //http==200 success//　0:Not reading 1:reading 2:is Download 3:Information exchange 4:Processing completed 
                 app.singleMsgs=response.data;
               }
             })            
@@ -102,15 +105,15 @@ const app = new Vue({
         app.friend_id = id;
       },
       sendNewMsg(){
-        axios.post('http://localhost/chat_laravel/sendNewMessage', {
+        axios.post(this.chatUrl+'/sendNewMessage', {
                friend_id: this.friend_id,
                msg:this.newMsgFrom,
              })
              .then(function (response) {
                console.log(response.data); // show if success
                if(response.status===200){
-                 window.location.replace('http://localhost/chat_laravel/messages');
-                 app.Msgtitle = 'message sent successfully';
+                 window.location.replace(this.chatUrl+'/messages');
+                 app.Msgtitle = 'message sent has been sent successfully';
                }
              })
              .catch(function (error) {

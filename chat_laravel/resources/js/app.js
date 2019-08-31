@@ -37,15 +37,19 @@ const app = new Vue({
         countseen:0,
         likes:[],
         post:[],
+        EditPostData:[],
         commentData:{},
         image:'',
-        chatUrl: 'http://localhost:8888/chat_laravel',
+        EditBoo:false,
+        updateTextarea:'',
+        updatedContent:'',
+        chatUrl: 'http://localhost/chat_laravel',
     },
     ready:function () {
       this.created();
     },
     created(){
-        axios.get('http://localhost/chat_laravel/posts')
+        axios.get(this.chatUrl+'/posts')
         .then(response=>{
           console.log(response); // show if success
           this.postsdata=response.data;   //we are putting data into our posts array      
@@ -68,10 +72,12 @@ const app = new Vue({
     },
     methods:{
         addPost(){
-            axios.post('http://localhost/chat_laravel/addnewPost', {
+          addpostvm=this;
+            axios.post(this.chatUrl+'/addnewPost', {
                  content: this.content
                })
                .then(function (response){
+                addpostvm.content="";
                  console.log('saved successfully'); // show if success
                  if(response.status===200){
                    app.postsdata=response.data;      
@@ -82,7 +88,7 @@ const app = new Vue({
             });
         },
         deletePost(id){
-            axios.get('http://localhost/chat_laravel/deletePost/'+id)
+            axios.get(this.chatUrl+'/deletePost/'+id)
             .then(response=>{
               console.log(response); // show if success
               this.postsdata=response.data;   //we are putting data into our posts array      
@@ -92,7 +98,7 @@ const app = new Vue({
             });
         },
         likePost(id){
-            axios.get('http://localhost/chat_laravel/likePost/'+id)
+            axios.get(this.chatUrl+'/likePost/'+id)
             .then(response=>{
               console.log(response); // show if success
               this.postsdata=response.data;   //we are putting data into our posts array      
@@ -110,33 +116,33 @@ const app = new Vue({
           app.commentSeen=post.id;
         },
         addComment(post,key){
-          axios.post('http://localhost/chat_laravel/addComment', {
+          axios.post(this.chatUrl+'/addComment', {
             comment: this.commentData[key],
-            id:post.id,
+            id:post.id,          
           })
-          .then(function (response){
+          .then((response)=>{
               console.log('saved successfully'); // show if success
+              this.commentData[key]="";
+              Vue.filter('Newtime', function(value){
+                return moment(value).fromNow();
+              });
               if(response.status===200){
-                app.postsdata=response.data;      
+                app.postsdata=response.data;       
             }
           })
           .catch(function (error) {
               console.log(error); // run if we have error
           });
         },
-        onFileChange(e){
-        
+        onFileChange(e){ 
           var files=e.target.files || e.dataTransfer.files;  //Judge the event of dragging or uploading
           this.createImg(files[0]);   //file the image/file value to our function
-
         },
-        createImg(file){
-          //we will preview our image before upload
+        createImg(file){//we will preview our image before upload
           var image = new Image;
           var reader = new FileReader();  //Create a fileReader to listen for the reader event
           reader.onload = (e) =>{ 
-            this.image=e.target.result;
-            // console.log(e.target.result); // The file's text will be printed here
+            this.image=e.target.result;// console.log(e.target.result); // The file's text will be printed here
           };
           reader.readAsDataURL(file); //read the contents of the specified Blob or File. 
         },
@@ -144,17 +150,66 @@ const app = new Vue({
           this.image="";
         },
         uploadImg(){
-          axios.post('http://localhost/chat_laravel/saveImg', {
-                 image: this.image
+          axios.post(this.chatUrl+'/saveImg', {
+                 image: this.image,
+                 content:this.content
                })
-               .then(function (response){
-                 console.log(response.data); // show if success
-                 
+               .then((response)=>{
+                    console.log("save scussesfully"); // show if success
+                    this.image="";
+                    this.content="";
+                    if(response.status===200){
+                      this.updateTextarea=response.data;      
+                  }
                })
                .catch(function (error) {
                  console.log(error); // run if we have error
             });
-        } 
+        },
+        openModel(id){
+          axios.get(this.chatUrl+'/Edit_Post/'+id)
+            .then(response=>{
+              console.log(response); // show if success
+              this.EditPostData=response.data;   //we are putting data into our posts array    
+              this.updatedContent=response.data[0].content;
+            })
+            .catch(function (error) {
+              console.log(error); // run if we have error
+            });
+        },
+        removEditImg(){
+          this.EditPostData[0].image=null;
+          app.EditBoo=false;
+        },
+        onFileChangeEdit(e){
+          var files=e.target.files || e.dataTransfer.files;  //Judge the event of dragging or uploading
+          this.createEditImg(files[0]);   //file the image/file value to our function
+        },
+        createEditImg(file){//we will preview our image before upload
+          var image = new Image;
+          var reader = new FileReader();  //Create a fileReader to listen for the reader event
+          reader.onload = (e) =>{ 
+            this.EditPostData[0].image=e.target.result;// console.log(e.target.result); // The file's text will be printed here
+            app.EditBoo=true;
+          };
+          reader.readAsDataURL(file); //read the contents of the specified Blob or File. 
+        },
+        updateEditImg(id){
+          axios.post(this.chatUrl+'/updatePostImgTxt/'+id,{
+                 Img:this.EditPostData[0].image,
+                 updatedContent:this.updatedContent,
+                 id:id,
+               })
+               .then((response)=>{
+                    console.log(response); // show if success
+                    if(response.status===200){
+                      window.location.replace(this.chatUrl);                 
+                  }
+               })
+               .catch(function (error) {
+                 console.log(error); // run if we have error
+            });
+        },
     }
    
 });
