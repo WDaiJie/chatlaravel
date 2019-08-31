@@ -7,4 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class comments extends Model
 {
     //
+    public $table = "comments";     
+    public function user(){
+        return $this->belongsTo(user::class);
+    }
 }
