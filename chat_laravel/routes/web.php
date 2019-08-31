@@ -13,7 +13,6 @@ get: after the address (URL)
 post:send the form data to the message-body
 */
 
-
 Route::get('/', 'PostsController@index');
 Route::group(['middleware', 'auth'],function () {
     Route::get('/home', 'HomeController@index')->name('home');
@@ -33,7 +32,7 @@ Route::group(['middleware', 'auth'],function () {
     Route::get('/noticefriends_data/{id}','ProfileController@notifications_friends');
     Route::get('/removefriend/{name}/{id}','ProfileController@removefriend'); 
     Route::get('/getMessages','MessagesController@getMessages');
-    Route::get('/getMessages/{id}','MessagesController@showsendMessages');
+    Route::get('/getMessages/{id}','MessagesController@showsendMessages'); //read conversation
     Route::post('/sendMessages','MessagesController@sendPrivMessages');
     Route::post('/sendNewMessage', 'MessagesController@sendNewMessage');
     Route::get('/newMessagefriendli','MessagesController@newMessage');
@@ -59,6 +58,10 @@ Route::group(['middleware', 'auth'],function () {
     Route::get('/messages',function(){
         return view ('messages');
     });
+    // update posts textarea and Img
+    Route::post('/updatePostImgTxt/{id}','PostsController@updatePostImgTxt');
+    //Edit Post show
+    Route::get('/Edit_Post/{id}','PostsController@Edit_Post');
     Route::get('/getToken/{token}','ProfileController@getToken');
     Route::post('/setToken','ProfileController@setToken');
     //set new password
@@ -66,9 +69,8 @@ Route::group(['middleware', 'auth'],function () {
     // jobs for users
     Route::get('/jobs','ProfileController@jobs');
     Route::get('/job/{id}','ProfileController@jobkey');
-   
-    
 });
+
 Route::group(['prefix'=>'company','middleware'=>['auth','company']],function () {   
     Route::get('/','companyController@index');
     Route::get('/addJobFrom',function () {
