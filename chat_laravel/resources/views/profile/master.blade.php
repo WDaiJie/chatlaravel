@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<?php use App\Http\Controllers\ProfileController; ?>
+<?php use App\Http\Controllers\ProfileController; 
+    use App\Http\Controllers\MessagesController; 
+?>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,7 +14,7 @@
     <!-- <script src="{{ asset('public/js/app.js') }}" defer></script> -->
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <script src="https://use.fontawesome.com/595a5020bd.js"></script>
+    <!-- <script src="https://use.fontawesome.com/595a5020bd.js"></script> -->
     <link rel="stylesheet" href="{{ asset('public/js/bootstrap.min.js') }}">
     <link rel="stylesheet" href="{{ asset('public/css/bootstrap.min.css') }}">
    
@@ -27,6 +29,18 @@
     text-decoration: none;
     background-color: #ffffff;
 }
+.sidebarli{
+        padding-left:30px; 
+        padding-right:5px;
+        padding-top:8px;
+        padding-bottom:8px
+        text-align:justify;
+        display: block;
+        width:100%;
+    }
+    .sidebarli:hover{
+        background-color: #96a5fb3b;
+    }   
 </style>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
@@ -37,7 +51,6 @@
                 <button id="nav-toggle-button" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
@@ -47,7 +60,6 @@
                                        font-size:16px">(<?php echo ProfileController::friendsrequestcount();?>)</span></a></li>                             
                         @endauth  
                     </ul>
-
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
@@ -65,7 +77,11 @@
                                 <a href="{{url('/friends')}}"style="padding:5px 20px; border-radius:5px; margin:0px"><img src="{{asset('public/img/friends.png')}}" width="40px" height="40px"></a>
                             </li>      
                             <li class="nav-item dropdown">
-                                <a href="{{url('/messages')}}"style="padding:5px 20px; border-radius:5px; margin:0px"><img src="{{asset('public/img/message.png')}}" width="40px" height="40px"></a>
+                                <a href="{{url('/messages')}}"style="padding:5px 20px; border-radius:5px; margin:0px">
+                                    <img src="{{asset('public/img/message.png')}}" width="40px" height="40px">
+                                    <span class="badge" style="background:red; position: relative; top:-7px; left:-22px;"><?php echo MessagesController::messagesCount()?></span>
+
+                                </a>
                             </li>                   
                             <li class="nav-item dropdown">
                                  <a href="#" data-toggle="dropdown" role="button" aria-expanded="false">               

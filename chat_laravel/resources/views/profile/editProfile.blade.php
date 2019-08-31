@@ -3,14 +3,14 @@
 @section('content')
 <!-- {{$data[0]->city}} -->
 <div class="container">
-    <ol class="breadcrumb">
+    <ol class="breadcrumb" style="margin-bottom:5px;padding-bottom:4px;margin-top:0px;padding-top:0px">
         <li class="breadcrumb-item "><a href="{{url('/home ')}}">Home</a></li>
         <li class="breadcrumb-item" ><a href="{{url('/profile')}}/{{Auth::user()->slug}}">Profile</a></li>
         <li class="breadcrumb-item" ><a href="{{url('/editProfile')}}">Edit Profile</a></li>
    </ol>
     <div class="row justify-content-center">
         @include('profile.sidebar')
-        <div class="col-md-9">
+        <div class="col-md-9" style="left:calc(10%); ">
             <div class="card">
                 <div class="card-header">{{ucwords(Auth::user()->name)}}</div>
                      <div class="card-body">
