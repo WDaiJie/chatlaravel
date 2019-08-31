@@ -6,18 +6,24 @@
         border-left:5px solid #c6ccefee;
         border-right:5px solid #c6ccefee;
         position: absolute;
-        left:calc(337px);
-        height:680px;
+        left:335px;
+        height:560px;
+       
     }
     .msgright{
         background-color:#c6ccefee;
         border-left:5px solid #c6ccefee;
-        height:680px;
+        height:560px;
+        position:fixed;
+        right:0px;
     }
     .msgleft{
         background-color:#c6ccefee;
         border-right:5px solid #c6ccefee;
-        height:680px;
+        height:560px;
+        position:fixed;
+        left:0px;
+       
     }     
     .m-b-md{
         margin-bottom: 30px0;
@@ -25,9 +31,15 @@
     .testMsgArea{
         border:none !important;
     }
+    .msgDiv{
+        position:fixed;
+        height:560px;
+        left:0;
+
+    }
 
 </style>
-<div class="col-md-12"  id="app2">
+<div class="col-md-12 msgDiv"  id="app2">
     <div class="col-md-3 pull-left msgleft hidden-sm hidden-xs"style="heifgt:100%;overflow-x:hidden;background-color:rgb(228, 228, 243);">
         <div class="row" style="padding:10px">
             <div class="col-md-4"> </div>
@@ -58,13 +70,13 @@
             </div>
         </div>
     </div>
-
     <div class="col-md-7 msgmain hidden-sm hidden-xs" style="background-color:rgb(228, 228, 243);">
         <h3 align="center">Messages</h3>
-        <p class="alert alert-success">@{{Msgtitle}}</p>
-        <div v-for="singleMsgkey in singleMsgs">
+        <p class="alert alert-success"style="margin-bottom:5px">@{{Msgtitle}}</p>
+        <div style="max-height:430px;!important;overflow-y:scroll;margin-top:0px;padding-top:0px">
+         <div v-for="singleMsgkey in singleMsgs">
                 <div v-if="singleMsgkey.user_from == <?php echo Auth::user()->id; ?>"> 
-                    <div class="col-md-12" style="margin-top:10px;padding-right:0px;">
+                    <div class="col-md-12" style="margin-top:20px;padding-top:10px;padding-right:0px;">
                         <img :src="'{{Config::get('app.url')}}/public/img/'+singleMsgkey.image" style="width:30px;border-radius:100%; margin-left:5px;"class="pull-right">  
                         <div style="max-width:70%;float:right; background-color:#0084ff;padding:5px 15px 5px 15px; margin-right:10px color:#fff;border-radius:10px;color:#fff;">
                             @{{singleMsgkey.msgs}}
@@ -84,7 +96,7 @@
                 <input type="hidden" v-model="converID">
                 <textarea class="col-md-12 form-control" style="margin-top:15px;" v-model="msgFrom" @keydown="inputMsgpiv"></textarea>  
         </div>
-
+    </div>
     <div class="col-md-2 pull-right msgright hidden-sm hidden-xs" style="background-color:rgb(228, 228, 243)">
         <h3 align="center"> Left Sidebar</h3><hr>
     </div>
